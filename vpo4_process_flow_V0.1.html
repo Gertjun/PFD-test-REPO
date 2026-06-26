@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPO4 Process Flow Diagram</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f7f6f2;
+      --surface:      #faf9f6;
+      --border:       #e0ded8;
+      --text-primary: #1a1a18;
+      --text-muted:   #6b6963;
+      --radius:       8px;
+
+      --teal-fill:    #e1f5ee;
+      --teal-stroke:  #0f6e56;
+      --teal-text:    #085041;
+
+      --purple-fill:  #eeedfe;
+      --purple-stroke:#534ab7;
+      --purple-text:  #3c3489;
+
+      --amber-fill:   #faeeda;
+      --amber-stroke: #854f0b;
+      --amber-text:   #633806;
+
+      --blue-fill:    #e6f1fb;
+      --blue-stroke:  #185fa5;
+      --blue-text:    #0c447c;
+
+      --gray-fill:    #eeede9;
+      --gray-stroke:  #888780;
+      --gray-text:    #3d3d3a;
+
+      --red-fill:     #fcebeb;
+      --red-stroke:   #a32d2d;
+      --red-text:     #791f1f;
+
+      --accept-color: #3b6d11;
+      --reject-color: #a32d2d;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:           #1c1c1a;
+        --surface:      #232320;
+        --border:       #38382e;
+        --text-primary: #e8e6df;
+        --text-muted:   #888780;
+
+        --teal-fill:    #04342c;
+        --teal-stroke:  #5dcaa5;
+        --teal-text:    #9fe1cb;
+
+        --purple-fill:  #26215c;
+        --purple-stroke:#afa9ec;
+        --purple-text:  #cecbf6;
+
+        --amber-fill:   #412402;
+        --amber-stroke: #ef9f27;
+        --amber-text:   #fac775;
+
+        --blue-fill:    #042c53;
+        --blue-stroke:  #85b7eb;
+        --blue-text:    #b5d4f4;
+
+        --gray-fill:    #2c2c2a;
+        --gray-stroke:  #b4b2a9;
+        --gray-text:    #d3d1c7;
+
+        --red-fill:     #501313;
+        --red-stroke:   #f09595;
+        --red-text:     #f7c1c1;
+
+        --accept-color: #97c459;
+        --reject-color: #f09595;
+      }
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+
+    header p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .diagram-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 24px 48px;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* Blocks */
+    .block {
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      text-align: center;
+      border: 1px solid transparent;
+      cursor: default;
+      transition: filter 0.15s ease, transform 0.15s ease;
+      position: relative;
+    }
+
+    .block:hover {
+      filter: brightness(0.96);
+      transform: translateY(-1px);
+    }
+
+    .block .step-label {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 3px;
+    }
+
+    .block .step-name {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .block.pill {
+      border-radius: 999px;
+      max-width: 180px;
+      padding: 10px 28px;
+    }
+
+    /* Plain downward connector */
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 36px;
+    }
+
+    .connector::before {
+      content: '';
+      display: block;
+      width: 1.5px;
+      flex: 1;
+      background: var(--border);
+    }
+
+    .connector::after {
+      content: '';
+      display: block;
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid var(--border);
+    }
+
+    /* Color variants */
+    .teal   { background: var(--teal-fill);   border-color: var(--teal-stroke);   color: var(--teal-text); }
+    .purple { background: var(--purple-fill); border-color: var(--purple-stroke); color: var(--purple-text); }
+    .amber  { background: var(--amber-fill);  border-color: var(--amber-stroke);  color: var(--amber-text); }
+    .blue   { background: var(--blue-fill);   border-color: var(--blue-stroke);   color: var(--blue-text); }
+    .gray   { background: var(--gray-fill);   border-color: var(--gray-stroke);   color: var(--gray-text); }
+    .red    { background: var(--red-fill);    border-color: var(--red-stroke);    color: var(--red-text); }
+
+    /* ── Branch section after QC1 ── */
+    .branch-section {
+      width: 100%;
+      max-width: 580px;
+      position: relative;
+    }
+
+    /* Horizontal splitter bar that comes out of QC1 */
+    .split-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      position: relative;
+    }
+
+    .split-bar::before {
+      content: '';
+      position: absolute;
+      left: 50px; right: 50px;
+      top: 50%; transform: translateY(-50%);
+      height: 1.5px;
+      background: var(--border);
+    }
+
+    /* Two columns */
+    .branch-cols {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .branch-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Labeled connector */
+    .connector-labeled {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .conn-line {
+      width: 1.5px;
+      height: 14px;
+    }
+
+    .conn-badge {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid;
+      white-space: nowrap;
+      margin: 2px 0;
+    }
+
+    .conn-arrow {
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+    }
+
+    .connector-labeled.accept .conn-line  { background: var(--accept-color); }
+    .connector-labeled.accept .conn-badge { background: var(--teal-fill); border-color: var(--accept-color); color: var(--accept-color); }
+    .connector-labeled.accept .conn-arrow { border-top: 7px solid var(--accept-color); }
+
+    .connector-labeled.reject .conn-line  { background: var(--reject-color); }
+    .connector-labeled.reject .conn-badge { background: var(--red-fill); border-color: var(--reject-color); color: var(--reject-color); }
+    .connector-labeled.reject .conn-arrow { border-top: 7px solid var(--reject-color); }
+
+    /* ── Decision R&D sub-branch ── */
+    .sub-branch {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Horizontal bar for Decision R&D split */
+    .sub-split {
+      display: flex;
+      width: 100%;
+      height: 28px;
+      position: relative;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sub-split::before {
+      content: '';
+      position: absolute;
+      left: 10%; right: 10%;
+      top: 50%; transform: translateY(-50%);
+      height: 1.5px;
+      background: var(--border);
+    }
+
+    .sub-cols {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .sub-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Loop-back acceptance arrow from Decision R&D → Weigh in VPO4 */
+    /* Drawn with SVG overlay absolutely positioned */
+    .loop-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    /* ── Accept loop SVG ── */
+    .accept-loop-svg {
+      display: block;
+      overflow: visible;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 20px;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      max-width: 660px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border-radius: 3px;
+      border: 1px solid transparent;
+      flex-shrink: 0;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 520px) {
+      .block { max-width: 100%; }
+      .diagram-card { padding: 28px 12px 36px; }
+      .branch-cols, .sub-cols { gap: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .block { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>VPO4 Process Flow</h1>
+    <p>Production process from synthesis to quality control</p>
+  </header>
+
+  <div class="diagram-card">
+    <div class="flow">
+
+      <!-- START -->
+      <div class="block gray pill">
+        <div class="step-name">Start</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 1 -->
+      <div class="block teal">
+        <div class="step-label">Step 1</div>
+        <div class="step-name">Synthesis</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 2 -->
+      <div class="block teal">
+        <div class="step-label">Step 2</div>
+        <div class="step-name">Sagger loading with paste</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 3 -->
+      <div class="block purple">
+        <div class="step-label">Step 3</div>
+        <div class="step-name">Transport</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 4 -->
+      <div class="block teal">
+        <div class="step-label">Step 4</div>
+        <div class="step-name">Sagger loading on kiln</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 5 -->
+      <div class="block amber">
+        <div class="step-label">Step 5 — high-temperature firing</div>
+        <div class="step-name">Calcination</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 6 -->
+      <div class="block teal">
+        <div class="step-label">Step 6</div>
+        <div class="step-name">Sagger unloading from kiln</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 7 -->
+      <div class="block purple">
+        <div class="step-label">Step 7</div>
+        <div class="step-name">Transport</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 8 -->
+      <div class="block teal">
+        <div class="step-label">Step 8</div>
+        <div class="step-name">Sagger unloading and paintshaker</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 9 -->
+      <div class="block blue">
+        <div class="step-label">Step 9</div>
+        <div class="step-name">Load VPO4 on MPU</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 10 -->
+      <div class="block blue">
+        <div class="step-label">Step 10</div>
+        <div class="step-name">VPO4 milling</div>
+      </div>
+      <div class="connector"></div>
+
+      <!-- Step 11: QC1 — grey -->
+      <div class="block gray" id="qc1">
+        <div class="step-label">Step 11 — inspection &amp; verification</div>
+        <div class="step-name">Quality Control 1</div>
+      </div>
+
+      <!-- ── Branch section ── -->
+      <div class="branch-section">
+
+        <!-- Horizontal splitter from QC1 -->
+        <div class="split-bar"></div>
+
+        <div class="branch-cols">
+
+          <!-- LEFT: Rejection → DRB → Decision R&D → sub-branch -->
+          <div class="branch-col">
+
+            <!-- Rejection arrow down to DRB -->
+            <div class="connector-labeled reject">
+              <div class="conn-line"></div>
+              <div class="conn-badge">Rejection</div>
+              <div class="conn-line"></div>
+              <div class="conn-arrow"></div>
+            </div>
+
+            <!-- DRB block -->
+            <div class="block red" style="width:100%">
+              <div class="step-name">DRB</div>
+            </div>
+
+            <!-- Plain connector down to Decision R&D -->
+            <div class="connector"></div>
+
+            <!-- Decision R&D block -->
+            <div class="block gray" style="width:100%" id="drd">
+              <div class="step-name">Decision R&amp;D</div>
+            </div>
+
+            <!-- Sub-branch from Decision R&D -->
+            <div class="sub-branch">
+              <div class="sub-split"></div>
+              <div class="sub-cols">
+
+                <!-- Left sub: Rejection → Scrap -->
+                <div class="sub-col">
+                  <div class="connector-labeled reject">
+                    <div class="conn-line"></div>
+                    <div class="conn-badge">Rejection</div>
+                    <div class="conn-line"></div>
+                    <div class="conn-arrow"></div>
+                  </div>
+                  <div class="block red" style="width:100%">
+                    <div class="step-name">Scrap</div>
+                  </div>
+                </div>
+
+                <!-- Right sub: Acceptance → loop back label -->
+                <div class="sub-col">
+                  <div class="connector-labeled accept">
+                    <div class="conn-line"></div>
+                    <div class="conn-badge">Acceptance</div>
+                    <div class="conn-line"></div>
+                    <div class="conn-arrow"></div>
+                  </div>
+                  <!-- Loop-back target label -->
+                  <div style="
+                    width:100%;
+                    border: 1.5px dashed var(--accept-color);
+                    border-radius: var(--radius);
+                    padding: 10px 8px;
+                    text-align: center;
+                    color: var(--accept-color);
+                    font-size: 12px;
+                    font-weight: 500;
+                    background: var(--teal-fill);
+                  ">
+                    ↑ Returns to<br><strong>Weigh in VPO4</strong>
+                  </div>
+                </div>
+
+              </div><!-- /sub-cols -->
+            </div><!-- /sub-branch -->
+
+          </div><!-- /LEFT branch-col -->
+
+          <!-- RIGHT: Acceptance → Weigh in VPO4 -->
+          <div class="branch-col">
+            <div class="connector-labeled accept">
+              <div class="conn-line"></div>
+              <div class="conn-badge">Acceptance</div>
+              <div class="conn-line"></div>
+              <div class="conn-arrow"></div>
+            </div>
+            <div class="block teal" style="width:100%" id="weigh">
+              <div class="step-name">Weigh in VPO4</div>
+            </div>
+          </div>
+
+        </div><!-- /branch-cols -->
+      </div><!-- /branch-section -->
+
+    </div><!-- /flow -->
+  </div><!-- /diagram-card -->
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--teal-fill);border-color:var(--teal-stroke)"></div>
+      Loading / unloading
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--purple-fill);border-color:var(--purple-stroke)"></div>
+      Transport
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--amber-fill);border-color:var(--amber-stroke)"></div>
+      Thermal process
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--blue-fill);border-color:var(--blue-stroke)"></div>
+      Milling
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--gray-fill);border-color:var(--gray-stroke)"></div>
+      Quality control / decision
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--teal-fill);border-color:var(--accept-color)"></div>
+      Acceptance
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--red-fill);border-color:var(--reject-color)"></div>
+      Rejection
+    </div>
+  </div>
+
+  <footer>VPO4 Production Process</footer>
+
+</body>
+</html>
