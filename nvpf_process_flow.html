@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NVPF Process Flow Diagram</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f9f8f6;
+      --surface: #ffffff;
+      --border:  #e0ded8;
+      --muted:   #6b6963;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: #1a1a18;
+      padding: 48px 24px 60px;
+    }
+
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 { font-size: 22px; font-weight: 500; letter-spacing: -.3px; }
+    header p  { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 24px 48px;
+      max-width: 860px;
+      margin: 0 auto;
+      overflow-x: auto;
+    }
+
+    .card svg { display: block; margin: 0 auto; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 10px 20px; margin: 32px auto 0; padding-top: 24px;
+      border-top: 1px solid var(--border); max-width: 860px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+    .sw { width: 13px; height: 13px; border-radius: 3px; border: 1px solid transparent; flex-shrink: 0; }
+
+    footer { text-align: center; margin-top: 32px; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>NVPF Process Flow</h1>
+  <p>Production process from synthesis to final quality control</p>
+</header>
+
+<div class="card">
+<svg viewBox="0 0 800 3426" width="800" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="ar"  viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ar-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#3b6d11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ar-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#a32d2d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ar-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+<line x1="20" y1="16" x2="220" y2="16" stroke="#e0ded8" stroke-width="1"/>
+<text x="300" y="16" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" font-weight="500" letter-spacing="1" fill="#6b6963">PHASE 1 — SYNTHESIS &amp; FIRST FIRING</text>
+<line x1="380" y1="16" x2="580" y2="16" stroke="#e0ded8" stroke-width="1"/>
+<rect x="220" y="40" width="160" height="40" rx="20" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="60" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Start</text>
+<line x1="300" y1="80" x2="300" y2="112" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="112" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="126" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 1</text>
+<text x="300" y="149" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Synthesis</text>
+<line x1="300" y1="162" x2="300" y2="194" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="194" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="208" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 2</text>
+<text x="300" y="231" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger loading with paste</text>
+<line x1="300" y1="244" x2="300" y2="276" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="276" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="290" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 3</text>
+<text x="300" y="313" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<line x1="300" y1="326" x2="300" y2="358" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="358" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="372" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 4</text>
+<text x="300" y="395" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger loading on kiln</text>
+<line x1="300" y1="408" x2="300" y2="440" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="440" width="280" height="64" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+<text x="300" y="457" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">STEP 5</text>
+<text x="300" y="472" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">HIGH-TEMP FIRING</text>
+<text x="300" y="487" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#633806">Calcination</text>
+<line x1="300" y1="504" x2="300" y2="536" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="536" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="550" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 6</text>
+<text x="300" y="573" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading from kiln</text>
+<line x1="300" y1="586" x2="300" y2="618" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="618" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="632" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 7</text>
+<text x="300" y="655" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<line x1="300" y1="668" x2="300" y2="700" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="700" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="714" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 8</text>
+<text x="300" y="737" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading and paintshaker</text>
+<line x1="300" y1="750" x2="300" y2="782" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="782" width="280" height="50" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="796" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 9</text>
+<text x="300" y="819" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Load VPO4 on MPU</text>
+<line x1="300" y1="832" x2="300" y2="864" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="864" width="280" height="50" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="878" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 10</text>
+<text x="300" y="901" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">VPO4 milling</text>
+<line x1="300" y1="914" x2="300" y2="946" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="946" width="280" height="50" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="960" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".75">STEP 11</text>
+<text x="300" y="983" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control 1</text>
+<!-- ── QC1 BRANCH ── -->
+<line x1="300" y1="996" x2="300" y2="1016" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="160" y1="1016" x2="440" y2="1016" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="160" y1="1016" x2="160" y2="1030" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="109" y="1030" width="102" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="160" y="1039" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<line x1="160" y1="1048" x2="160" y2="1324" stroke="#3b6d11" stroke-width="1.5"/>
+<line x1="160" y1="1324" x2="300" y2="1324" stroke="#3b6d11" stroke-width="1.5"/>
+<line x1="300" y1="1324" x2="300" y2="1356" stroke="#3b6d11" stroke-width="1.5" marker-end="url(#ar-a)"/>
+<line x1="440" y1="1016" x2="440" y2="1030" stroke="#a32d2d" stroke-width="1.5"/>
+<rect x="395" y="1030" width="90" height="18" rx="9" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="440" y="1039" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#a32d2d">REJECTION</text>
+<line x1="440" y1="1048" x2="440" y2="1068" stroke="#a32d2d" stroke-width="1.5" marker-end="url(#ar-r)"/>
+<rect x="340" y="1068" width="200" height="40" rx="8" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="440" y="1088" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#791f1f">DRB</text>
+<line x1="440" y1="1108" x2="440" y2="1136" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="340" y="1136" width="200" height="40" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="440" y="1156" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Decision R&amp;D</text>
+<line x1="440" y1="1176" x2="440" y2="1194" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="380" y1="1194" x2="500" y2="1194" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="380" y1="1194" x2="380" y2="1208" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="333" y="1208" width="96" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="381" y="1217" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<path d="M380,1226 L380,1324 L300,1324" fill="none" stroke="#3b6d11" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ar-a)"/>
+<line x1="500" y1="1194" x2="500" y2="1208" stroke="#a32d2d" stroke-width="1.5"/>
+<rect x="455" y="1208" width="90" height="18" rx="9" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="500" y="1217" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#a32d2d">REJECTION</text>
+<line x1="500" y1="1226" x2="500" y2="1246" stroke="#a32d2d" stroke-width="1.5" marker-end="url(#ar-r)"/>
+<rect x="440" y="1246" width="120" height="40" rx="8" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="500" y="1266" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#791f1f">Scrap</text>
+<line x1="20" y1="1160" x2="220" y2="1160" stroke="#e0ded8" stroke-width="1"/>
+<text x="300" y="1160" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" font-weight="500" letter-spacing="1" fill="#6b6963">PHASE 2 — MIX &amp; SECOND FIRING</text>
+<line x1="380" y1="1160" x2="580" y2="1160" stroke="#e0ded8" stroke-width="1"/>
+<rect x="160" y="1356" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1370" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 12</text>
+<text x="300" y="1393" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Weigh in VPO4</text>
+<line x1="300" y1="1406" x2="300" y2="1466" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<!-- Mix Eirich R09 -->
+<rect x="160" y="1466" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1480" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 13</text>
+<text x="300" y="1503" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Mix Eirich R09</text>
+<line x1="300" y1="1516" x2="300" y2="1548" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="1548" width="280" height="50" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="1562" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".75">STEP 14</text>
+<text x="300" y="1585" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control 2</text>
+<line x1="300" y1="1598" x2="300" y2="1606" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="252" y="1606" width="96" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="300" y="1615" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<line x1="300" y1="1624" x2="300" y2="1678" stroke="#3b6d11" stroke-width="1.5" marker-end="url(#ar-a)"/>
+<rect x="160" y="1678" width="280" height="78" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1699" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 15</text>
+<text x="300" y="1712" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Load mix in Saggers</text>
+<text x="300" y="1729" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">with automatic compactor</text>
+<line x1="300" y1="1756" x2="300" y2="1788" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="1788" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="1802" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 16</text>
+<text x="300" y="1825" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<line x1="300" y1="1838" x2="300" y2="1870" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="1870" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1884" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 17</text>
+<text x="300" y="1907" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger loading on kiln</text>
+<line x1="300" y1="1920" x2="300" y2="1952" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="1952" width="280" height="64" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+<text x="300" y="1969" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">STEP 18</text>
+<text x="300" y="1984" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">HIGH-TEMP FIRING</text>
+<text x="300" y="1999" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#633806">Calcination</text>
+<line x1="300" y1="2016" x2="300" y2="2048" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2048" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2062" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 19</text>
+<text x="300" y="2085" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading from kiln</text>
+<line x1="300" y1="2098" x2="300" y2="2130" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2130" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2144" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 20</text>
+<text x="300" y="2167" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<line x1="300" y1="2180" x2="300" y2="2212" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2212" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2226" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 21</text>
+<text x="300" y="2249" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading and crush</text>
+<line x1="300" y1="2262" x2="300" y2="2294" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2294" width="280" height="50" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="2308" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".75">STEP 22</text>
+<text x="300" y="2331" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control 3</text>
+<line x1="300" y1="2394" x2="300" y2="2402" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="252" y="2402" width="96" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="300" y="2411" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<rect x="160" y="2452" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2466" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 23</text>
+<text x="300" y="2489" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<rect x="548" y="1175" width="196" height="352" rx="10" fill="#f5f9f4" stroke="#c8e6c0" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="646" y="1187" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing="0.8" fill="#3b6d11" opacity="0.8">PREMIX PREPARATION</text>
+<rect x="556" y="1185" width="180" height="54" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1204" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">LOD measurement</text>
+<text x="646" y="1221" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Cellulose</text>
+<line x1="646" y1="1239" x2="646" y2="1267" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="556" y="1267" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1281" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Weigh in NaF</text>
+<text x="646" y="1293" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">&amp; Cellulose</text>
+<line x1="646" y1="1307" x2="646" y2="1335" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="556" y="1335" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1349" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Mix NaF</text>
+<text x="646" y="1361" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">&amp; Cellulose</text>
+<line x1="646" y1="1375" x2="646" y2="1403" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="556" y="1403" width="180" height="40" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1423" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#633806">Dry Premix</text>
+<line x1="646" y1="1443" x2="646" y2="1471" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="556" y="1471" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1491" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Weigh in Premix</text>
+<line x1="556" y1="1491" x2="441" y2="1491" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<line x1="20" y1="2522" x2="220" y2="2522" stroke="#e0ded8" stroke-width="1"/>
+<text x="300" y="2522" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" font-weight="500" letter-spacing="1" fill="#6b6963">PHASE 3 — WET PROCESSING &amp; DRYING</text>
+<line x1="380" y1="2522" x2="580" y2="2522" stroke="#e0ded8" stroke-width="1"/>
+<line x1="300" y1="2502" x2="300" y2="2506" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="300" y1="2538" x2="300" y2="2570" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2570" width="280" height="50" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="2584" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 24</text>
+<text x="300" y="2607" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Dispersing</text>
+<line x1="300" y1="2620" x2="300" y2="2652" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2652" width="280" height="50" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="2666" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 25</text>
+<text x="300" y="2689" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Wet milling</text>
+<line x1="440" y1="2677" x2="554" y2="2677" stroke="#888780" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ar-m)"/>
+<rect x="556" y="2680" width="180" height="50" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="646" y="2697" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="12" font-weight="500" fill="#3d3d3a">Quality Control 5</text>
+<text x="646" y="2715" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" fill="#888780">monitoring only</text>
+<line x1="300" y1="2702" x2="300" y2="2734" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2734" width="280" height="50" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="2748" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 26</text>
+<text x="300" y="2771" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Washing</text>
+<line x1="300" y1="2784" x2="300" y2="2816" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2816" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2830" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 27</text>
+<text x="300" y="2853" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Load filtercake on drying trays</text>
+<line x1="300" y1="2866" x2="300" y2="2898" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2898" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2912" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 28</text>
+<text x="300" y="2935" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<line x1="300" y1="2948" x2="300" y2="2980" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="2980" width="280" height="64" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+<text x="300" y="2997" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">STEP 29</text>
+<text x="300" y="3012" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">THERMAL DRYING</text>
+<text x="300" y="3027" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#633806">Drying</text>
+<line x1="300" y1="3044" x2="300" y2="3076" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="3076" width="280" height="50" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="3090" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 30</text>
+<text x="300" y="3113" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+<line x1="300" y1="3126" x2="300" y2="3158" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="3158" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="3172" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 31</text>
+<text x="300" y="3195" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Unload drying trays and crush</text>
+<line x1="300" y1="3208" x2="300" y2="3240" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="3240" width="280" height="50" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="3254" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 32</text>
+<text x="300" y="3277" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sieving and Packing</text>
+<line x1="300" y1="3290" x2="300" y2="3322" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<rect x="160" y="3322" width="280" height="64" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="3339" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".75">STEP 33</text>
+<text x="300" y="3354" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".75">FINAL INSPECTION</text>
+<text x="300" y="3369" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control</text>
+</svg>
+</div><!-- /card -->
+
+<div class="legend">
+  <div class="legend-item"><div class="sw" style="background:#e1f5ee;border-color:#0f6e56"></div>Loading / unloading / mixing</div>
+  <div class="legend-item"><div class="sw" style="background:#eeedfe;border-color:#534ab7"></div>Transport</div>
+  <div class="legend-item"><div class="sw" style="background:#faeeda;border-color:#854f0b"></div>Thermal process</div>
+  <div class="legend-item"><div class="sw" style="background:#e6f1fb;border-color:#185fa5"></div>Milling / wet processing</div>
+  <div class="legend-item"><div class="sw" style="background:#eeede9;border-color:#888780"></div>Quality control / decision</div>
+  <div class="legend-item"><div class="sw" style="background:#e1f5ee;border-color:#3b6d11"></div>Acceptance</div>
+  <div class="legend-item"><div class="sw" style="background:#fcebeb;border-color:#a32d2d"></div>Rejection</div>
+  <div class="legend-item">
+    <svg width="22" height="10"><line x1="0" y1="5" x2="22" y2="5" stroke="#888780" stroke-width="1.5" stroke-dasharray="4,3"/></svg>
+    Monitoring branch
+  </div>
+  <div class="legend-item">
+    <div class="sw" style="background:#e1f5ee;border-color:#0f6e56;border-style:dashed"></div>
+    Subprocess
+  </div>
+</div>
+
+<footer>NVPF Production Process</footer>
+
+</body>
+</html>
