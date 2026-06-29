@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NVPF Process Flow Diagram</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f9f8f6;
+      --surface: #ffffff;
+      --border:  #e0ded8;
+      --muted:   #6b6963;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: #1a1a18;
+      padding: 48px 24px 60px;
+    }
+
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 { font-size: 22px; font-weight: 500; letter-spacing: -.3px; }
+    header p  { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 24px 48px;
+      max-width: 860px;
+      margin: 0 auto;
+      overflow-x: auto;
+    }
+
+    .card svg { display: block; margin: 0 auto; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 10px 20px; margin: 32px auto 0; padding-top: 24px;
+      border-top: 1px solid var(--border); max-width: 860px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+    .sw { width: 13px; height: 13px; border-radius: 3px; border: 1px solid transparent; flex-shrink: 0; }
+
+    footer { text-align: center; margin-top: 32px; font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>NVPF Process Flow</h1>
+  <p>Production process from synthesis to final quality control</p>
+</header>
+
+<div class="card">
+<!--
+  SINGLE SVG — all coordinates defined here, nothing mixed with HTML layout.
+
+  Layout constants:
+    viewBox width  = 800
+    Main col centre = 300   block x = 160..440   w = 280
+    Side col centre = 660   block x = 570..750   w = 180  (QC5 and future blocks)
+    Block height (1-line)  = 40
+    Block height (2-line)  = 54
+    Plain connector height = 28
+    Labelled connector     = 52  (line 12 + badge 18 + line 12 + arrowhead 10)
+    Phase label row        = 32
+
+  Phase label is a text element with decorative lines either side.
+
+  Column coordinates:
+    Main col:   cx=300  x1=160  x2=440  w=280
+    Left branch:  cx=160  x1=60   x2=260  w=200  (DRB, Decision R&D)
+    Right branch: cx=440  x1=340  x2=540  w=200  (Weigh in VPO4)
+    Left-sub:     cx=100  x1=40   x2=160  w=120  (Scrap)
+    Right-sub:    cx=220  x1=160  x2=280  w=120  (acceptance arc)
+    Side col:     cx=660  x1=570  x2=750  w=180  (QC5)
+
+  Y positions (cumulative, top of each element):
+
+  PHASE 1 label: y=0  height=32
+  Start pill:    y=40  h=40  bot=80
+  arr:           y=80  h=28  bot=108
+  Synthesis:     y=108 h=40  bot=148
+  arr:           148   28    176
+  Sagger ld paste:176  40    216
+  arr:           216   28    244
+  Transport:     244   40    284
+  arr:           284   28    312
+  Sagger ld kiln:312   40    352
+  arr:           352   28    380
+  Calcination:   380   54    434
+  arr:           434   28    462
+  Sagger unld kiln:462 40    502
+  arr:           502   28    530
+  Transport:     530   40    570
+  arr:           570   28    598
+  Sagger unld+ps:598   40    638
+  arr:           638   28    666
+  Load VPO4 MPU: 666   40    706
+  arr:           706   28    734
+  VPO4 milling:  734   40    774
+  arr:           774   28    802
+  QC1:           802   40    842
+
+  BRANCH SVG section (y from 842):
+  stem down 20: 842→862
+  split bar y=862: from x=160 to x=440
+  LEFT (cx=160): reject badge 862→914, DRB 914 h=40 bot=954, arr 954→982, Decision R&D 982 h=40 bot=1022
+    sub-stem 1022→1040, sub-bar y=1040: x=100..220
+    LEFT-sub (cx=100): reject badge 1040→1092, Scrap 1092 h=40 bot=1132
+    RIGHT-sub (cx=220): accept badge 1040→1092, arc to Weigh left edge (x=340, y=934)
+  RIGHT (cx=440): accept badge 862→914, Weigh in VPO4 914 h=40 bot=954
+    jog down: 954→1140, jog left to cx=300 at y=1140, exit down to y=1180
+
+  PHASE 2 label: y=1188  h=32
+  arr:           1228  28   1256
+  Mix Eirich:    1256  40   1296
+  arr:           1296  28   1324
+  QC2:           1324  40   1364
+  accept-conn:   1364  52   1416
+  Load mix saggers: 1416 54 1470
+  arr:           1470  28   1498
+  Transport:     1498  40   1538
+  arr:           1538  28   1566
+  Sagger ld kiln:1566  40   1606
+  arr:           1606  28   1634
+  Calcination:   1634  54   1688
+  arr:           1688  28   1716
+  Sagger unld kiln:1716 40  1756
+  arr:           1756  28   1784
+  Transport:     1784  40   1824
+  arr:           1824  28   1852
+  Sagger unld crush:1852 40 1892
+  arr:           1892  28   1920
+  QC3:           1920  40   1960
+  accept-conn:   1960  52   2012
+  Transport:     2012  40   2052
+
+  PHASE 3 label: y=2068  h=32
+  arr:           2108  28   2136
+  Dispersing:    2136  40   2176
+  arr:           2176  28   2204
+  Wet milling:   2204  40   2244   ← QC5 side branch from right edge
+  arr:           2244  28   2272
+  Washing:       2272  40   2312
+  arr:           2312  28   2340
+  Load filtercake:2340  40  2380
+  arr:           2380  28   2408
+  Transport:     2408  40   2448
+  arr:           2448  28   2476
+  Drying:        2476  54   2530
+  arr:           2530  28   2558
+  Transport:     2558  40   2598
+  arr:           2598  28   2626
+  Unload trays+crush:2626 40 2666
+  arr:           2666  28   2694
+  Sieving+Packing:2694  40  2734
+  arr:           2734  28   2762
+  QC Final:      2762  54   2816
+
+  Total SVG height: 2816 + 40 padding = 2856
+-->
+<svg viewBox="0 0 800 3100" width="800" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="ar"  viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ar-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#3b6d11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ar-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#a32d2d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ar-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Helper macros via reusable <g> — we just write inline for clarity -->
+
+<!-- ═══════════ PHASE 1 LABEL ═══════════ -->
+<line x1="20"  y1="16" x2="210" y2="16" stroke="#e0ded8" stroke-width="1"/>
+<text x="300" y="16" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" font-weight="500" letter-spacing="1" fill="#6b6963">PHASE 1 — SYNTHESIS &amp; FIRST FIRING</text>
+<line x1="390" y1="16" x2="580" y2="16" stroke="#e0ded8" stroke-width="1"/>
+
+<!-- START pill -->
+<rect x="220" y="40" width="160" height="40" rx="20" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="60" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Start</text>
+
+<line x1="300" y1="80" x2="300" y2="108" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Synthesis -->
+<rect x="160" y="108" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="120" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 1</text>
+<text x="300" y="136" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Synthesis</text>
+
+<line x1="300" y1="148" x2="300" y2="176" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger loading with paste -->
+<rect x="160" y="176" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="188" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 2</text>
+<text x="300" y="204" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger loading with paste</text>
+
+<line x1="300" y1="216" x2="300" y2="244" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Transport -->
+<rect x="160" y="244" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="256" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 3</text>
+<text x="300" y="272" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<line x1="300" y1="284" x2="300" y2="312" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger loading on kiln -->
+<rect x="160" y="312" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="324" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 4</text>
+<text x="300" y="340" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger loading on kiln</text>
+
+<line x1="300" y1="352" x2="300" y2="380" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Calcination -->
+<rect x="160" y="380" width="280" height="54" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+<text x="300" y="394" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">STEP 5 — HIGH-TEMP FIRING</text>
+<text x="300" y="414" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#633806">Calcination</text>
+
+<line x1="300" y1="434" x2="300" y2="462" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger unloading from kiln -->
+<rect x="160" y="462" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="474" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 6</text>
+<text x="300" y="490" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading from kiln</text>
+
+<line x1="300" y1="502" x2="300" y2="530" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Transport -->
+<rect x="160" y="530" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="542" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#534ab7" opacity=".75">STEP 7</text>
+<text x="300" y="558" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<line x1="300" y1="570" x2="300" y2="598" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger unloading and paintshaker -->
+<rect x="160" y="598" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="610" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#0f6e56" opacity=".75">STEP 8</text>
+<text x="300" y="626" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading and paintshaker</text>
+
+<line x1="300" y1="638" x2="300" y2="666" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Load VPO4 on MPU -->
+<rect x="160" y="666" width="280" height="40" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="678" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 9</text>
+<text x="300" y="694" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Load VPO4 on MPU</text>
+
+<line x1="300" y1="706" x2="300" y2="734" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- VPO4 milling -->
+<rect x="160" y="734" width="280" height="40" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="746" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#185fa5" opacity=".75">STEP 10</text>
+<text x="300" y="762" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">VPO4 milling</text>
+
+<line x1="300" y1="774" x2="300" y2="802" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- QC1 -->
+<rect x="160" y="802" width="280" height="40" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="814" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".8">STEP 11 — INSPECTION &amp; VERIFICATION</text>
+<text x="300" y="830" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control 1</text>
+
+<!-- ── QC1 BRANCH ── -->
+<!-- Stem down from QC1 -->
+<line x1="300" y1="842" x2="300" y2="862" stroke="#a8a59e" stroke-width="1.5"/>
+<!-- Horizontal split bar: left cx=160, right cx=440 -->
+<line x1="160" y1="862" x2="440" y2="862" stroke="#a8a59e" stroke-width="1.5"/>
+
+<!-- LEFT: Acceptance badge + jog down and right to main column, into Phase 2 (cx=160) -->
+<line x1="160" y1="862" x2="160" y2="876" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="109" y="876" width="102" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="160" y="885" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<line x1="160" y1="894" x2="160" y2="1170" stroke="#3b6d11" stroke-width="1.5"/>
+<line x1="160" y1="1170" x2="300" y2="1170" stroke="#3b6d11" stroke-width="1.5"/>
+<line x1="300" y1="1170" x2="300" y2="1200" stroke="#3b6d11" stroke-width="1.5" marker-end="url(#ar-a)"/>
+
+<!-- RIGHT: Rejection → DRB (cx=440) -->
+<line x1="440" y1="862" x2="440" y2="876" stroke="#a32d2d" stroke-width="1.5"/>
+<rect x="395" y="876" width="90" height="18" rx="9" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="440" y="885" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#a32d2d">REJECTION</text>
+<line x1="440" y1="894" x2="440" y2="914" stroke="#a32d2d" stroke-width="1.5" marker-end="url(#ar-r)"/>
+<!-- DRB: cx=440, w=200, x=340..540 -->
+<rect x="340" y="914" width="200" height="40" rx="8" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="440" y="934" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#791f1f">DRB</text>
+<!-- DRB → Decision R&D -->
+<line x1="440" y1="954" x2="440" y2="982" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+<!-- Decision R&D: cx=440, w=200, x=340..540 -->
+<rect x="340" y="982" width="200" height="40" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="440" y="1002" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Decision R&amp;D</text>
+<!-- Sub-stem + sub-split: symmetric around 440, sub-cols at 380 and 500 -->
+<line x1="440" y1="1022" x2="440" y2="1040" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="380" y1="1040" x2="500" y2="1040" stroke="#a8a59e" stroke-width="1.5"/>
+<!-- LEFT-sub: Acceptance → dotted arc to main column (cx=380) -->
+<line x1="380" y1="1040" x2="380" y2="1054" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="333" y="1054" width="96" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="381" y="1063" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<path d="M380,1072 L380,1170 L300,1170"
+      fill="none" stroke="#3b6d11" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ar-a)"/>
+<!-- RIGHT-sub: Rejection → Scrap (cx=500) -->
+<line x1="500" y1="1040" x2="500" y2="1054" stroke="#a32d2d" stroke-width="1.5"/>
+<rect x="455" y="1054" width="90" height="18" rx="9" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="500" y="1063" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#a32d2d">REJECTION</text>
+<line x1="500" y1="1072" x2="500" y2="1092" stroke="#a32d2d" stroke-width="1.5" marker-end="url(#ar-r)"/>
+<!-- Scrap: cx=500, w=120, x=440..560 -->
+<rect x="440" y="1092" width="120" height="40" rx="8" fill="#fcebeb" stroke="#a32d2d" stroke-width="1"/>
+<text x="500" y="1112" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#791f1f">Scrap</text>
+
+<!-- ═══════════ SUBPROCESS COLUMN (cx=646, x=556..736, w=180) — inside Phase 2 ═══════════
+     5 blocks × 40px + 4 connectors × 28px = 312px total
+     Weigh in Premix aligned with Mix Eirich R09: y=1324..1364
+     Top of LOD measurement: 1324 - 4×(40+28) = 1324 - 272 = 1052
+     → LOD:           y=1052..1092
+     → Weigh NaF:     y=1120..1160
+     → Mix NaF:       y=1188..1228
+     → Dry Premix:    y=1256..1296
+     → Weigh Premix:  y=1324..1364
+-->
+
+<!-- LOD measurement Cellulose: y=1256..1296 -->
+<rect x="556" y="1256" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1270" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">LOD measurement</text>
+<text x="646" y="1286" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Cellulose</text>
+
+<line x1="646" y1="1296" x2="646" y2="1324" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Weigh in NaF & Cellulose: y=1324..1364 -->
+<rect x="556" y="1324" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1338" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Weigh in NaF</text>
+<text x="646" y="1354" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">&amp; Cellulose</text>
+
+<line x1="646" y1="1364" x2="646" y2="1392" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Mix NaF & Cellulose: y=1392..1432 -->
+<rect x="556" y="1392" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1406" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Mix NaF</text>
+<text x="646" y="1422" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">&amp; Cellulose</text>
+
+<line x1="646" y1="1432" x2="646" y2="1460" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Dry Premix: y=1460..1500 -->
+<rect x="556" y="1460" width="180" height="40" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1480" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#633806">Dry Premix</text>
+
+<line x1="646" y1="1500" x2="646" y2="1528" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Weigh in Premix: y=1528..1568, aligned with Mix Eirich R09 (y=1324..1364 centre=1344) -->
+<rect x="556" y="1528" width="180" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1" stroke-dasharray="5,3"/>
+<text x="646" y="1548" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="11" font-weight="500" fill="#085041">Weigh in Premix</text>
+
+<!-- Connection from left edge of Weigh in Premix → right edge of Mix Eirich R09 (x=440, y=1548) -->
+<line x1="556" y1="1548" x2="441" y2="1548" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- ═══════════ PHASE 2 LABEL ═══════════ -->
+<line x1="20"  y1="1216" x2="186" y2="1216" stroke="#e0ded8" stroke-width="1"/>
+<text x="300" y="1216" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" font-weight="500" letter-spacing="1" fill="#6b6963">PHASE 2 — MIX &amp; SECOND FIRING</text>
+<line x1="414" y1="1216" x2="580" y2="1216" stroke="#e0ded8" stroke-width="1"/>
+
+<line x1="300" y1="1228" x2="300" y2="1256" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Weigh in VPO4: y=1256..1296 -->
+<rect x="160" y="1256" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1276" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Weigh in VPO4</text>
+
+<line x1="300" y1="1296" x2="300" y2="1528" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Mix Eirich R09: y=1324..1364 -->
+<rect x="160" y="1528" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1548" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Mix Eirich R09</text>
+
+<line x1="300" y1="1568" x2="300" y2="1596" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Quality Control 2: y=1392..1432 -->
+<rect x="160" y="1596" width="280" height="40" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="1616" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control 2</text>
+
+<!-- Acceptance connector -->
+<line x1="300" y1="1636" x2="300" y2="1648" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="252" y="1648" width="96" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="300" y="1657" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<line x1="300" y1="1666" x2="300" y2="1688" stroke="#3b6d11" stroke-width="1.5" marker-end="url(#ar-a)"/>
+
+<!-- Load mix in Saggers with automatic compactor: y=1484..1538 -->
+<rect x="160" y="1688" width="280" height="54" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1706" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Load mix in Saggers</text>
+<text x="300" y="1724" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">with automatic compactor</text>
+
+<line x1="300" y1="1742" x2="300" y2="1770" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Transport: y=1566..1606 -->
+<rect x="160" y="1770" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="1790" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<line x1="300" y1="1810" x2="300" y2="1838" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger loading on kiln: y=1634..1674 -->
+<rect x="160" y="1838" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="1858" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger loading on kiln</text>
+
+<line x1="300" y1="1878" x2="300" y2="1906" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Calcination: y=1702..1756 -->
+<rect x="160" y="1906" width="280" height="54" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+<text x="300" y="1924" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">HIGH-TEMP FIRING</text>
+<text x="300" y="1944" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#633806">Calcination</text>
+
+<line x1="300" y1="1960" x2="300" y2="1988" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger unloading from kiln: y=1784..1824 -->
+<rect x="160" y="1988" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2008" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading from kiln</text>
+
+<line x1="300" y1="2028" x2="300" y2="2056" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Transport: y=1852..1892 -->
+<rect x="160" y="2056" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2076" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<line x1="300" y1="2096" x2="300" y2="2124" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sagger unloading and crush: y=1920..1960 -->
+<rect x="160" y="2124" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2144" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sagger unloading and crush</text>
+
+<line x1="300" y1="2164" x2="300" y2="2192" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Quality Control 3: y=1988..2028 -->
+<rect x="160" y="2192" width="280" height="40" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="2212" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control 3</text>
+
+<!-- Acceptance connector -->
+<line x1="300" y1="2232" x2="300" y2="2244" stroke="#3b6d11" stroke-width="1.5"/>
+<rect x="252" y="2244" width="96" height="18" rx="9" fill="#e1f5ee" stroke="#3b6d11" stroke-width="1"/>
+<text x="300" y="2253" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" font-weight="500" letter-spacing=".5" fill="#3b6d11">ACCEPTANCE</text>
+<line x1="300" y1="2262" x2="300" y2="2284" stroke="#3b6d11" stroke-width="1.5" marker-end="url(#ar-a)"/>
+
+<!-- Transport: y=2080..2120 -->
+<rect x="160" y="2284" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2304" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<!-- ═══════════ PHASE 3 LABEL ═══════════ -->
+<line x1="300" y1="2324" x2="300" y2="2340" stroke="#a8a59e" stroke-width="1.5"/>
+<line x1="20"  y1="2356" x2="178" y2="2356" stroke="#e0ded8" stroke-width="1"/>
+<text x="300" y="2356" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" font-weight="500" letter-spacing="1" fill="#6b6963">PHASE 3 — WET PROCESSING &amp; DRYING</text>
+<line x1="422" y1="2356" x2="580" y2="2356" stroke="#e0ded8" stroke-width="1"/>
+<line x1="300" y1="2372" x2="300" y2="2380" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Dispersing: y=2176..2216 -->
+<rect x="160" y="2380" width="280" height="40" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="2400" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Dispersing</text>
+
+<line x1="300" y1="2420" x2="300" y2="2448" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Wet milling + QC5 side branch: y=2244..2284 -->
+<rect x="160" y="2448" width="280" height="40" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="2468" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Wet milling</text>
+<!-- Dashed arrow to QC5 -->
+<line x1="440" y1="2468" x2="554" y2="2468" stroke="#888780" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ar-m)"/>
+<!-- QC5: aligned with Wet milling y=2448..2488 -->
+<rect x="556" y="2448" width="180" height="40" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="646" y="2462" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="12" font-weight="500" fill="#3d3d3a">Quality Control 5</text>
+<text x="646" y="2480" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="10" fill="#888780">monitoring only</text>
+
+<line x1="300" y1="2488" x2="300" y2="2516" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Washing: y=2312..2352 -->
+<rect x="160" y="2516" width="280" height="40" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="1"/>
+<text x="300" y="2536" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#0c447c">Washing</text>
+
+<line x1="300" y1="2556" x2="300" y2="2584" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Load filtercake on drying trays: y=2380..2420 -->
+<rect x="160" y="2584" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2604" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Load filtercake on drying trays</text>
+
+<line x1="300" y1="2624" x2="300" y2="2652" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Transport: y=2448..2488 -->
+<rect x="160" y="2652" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2672" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<line x1="300" y1="2692" x2="300" y2="2720" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Drying: y=2516..2570 -->
+<rect x="160" y="2720" width="280" height="54" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+<text x="300" y="2738" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#854f0b" opacity=".75">THERMAL DRYING</text>
+<text x="300" y="2758" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#633806">Drying</text>
+
+<line x1="300" y1="2774" x2="300" y2="2802" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Transport: y=2598..2638 -->
+<rect x="160" y="2802" width="280" height="40" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="1"/>
+<text x="300" y="2822" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3c3489">Transport</text>
+
+<line x1="300" y1="2842" x2="300" y2="2870" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Unload drying trays and crush: y=2666..2706 -->
+<rect x="160" y="2870" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2890" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Unload drying trays and crush</text>
+
+<line x1="300" y1="2910" x2="300" y2="2938" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Sieving and Packing: y=2734..2774 -->
+<rect x="160" y="2938" width="280" height="40" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<text x="300" y="2958" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#085041">Sieving and Packing</text>
+
+<line x1="300" y1="2978" x2="300" y2="3006" stroke="#a8a59e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<!-- Quality Control: Final Inspection: y=2802..2856 -->
+<rect x="160" y="3006" width="280" height="54" rx="8" fill="#eeede9" stroke="#888780" stroke-width="1"/>
+<text x="300" y="3024" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="9" letter-spacing=".6" fill="#888780" opacity=".8">FINAL INSPECTION</text>
+<text x="300" y="3044" text-anchor="middle" dominant-baseline="central" font-family="system-ui,sans-serif" font-size="13" font-weight="500" fill="#3d3d3a">Quality Control</text>
+
+</svg>
+</div><!-- /card -->
+
+<div class="legend">
+  <div class="legend-item"><div class="sw" style="background:#e1f5ee;border-color:#0f6e56"></div>Loading / unloading / mixing</div>
+  <div class="legend-item"><div class="sw" style="background:#eeedfe;border-color:#534ab7"></div>Transport</div>
+  <div class="legend-item"><div class="sw" style="background:#faeeda;border-color:#854f0b"></div>Thermal process</div>
+  <div class="legend-item"><div class="sw" style="background:#e6f1fb;border-color:#185fa5"></div>Milling / wet processing</div>
+  <div class="legend-item"><div class="sw" style="background:#eeede9;border-color:#888780"></div>Quality control / decision</div>
+  <div class="legend-item"><div class="sw" style="background:#e1f5ee;border-color:#3b6d11"></div>Acceptance</div>
+  <div class="legend-item"><div class="sw" style="background:#fcebeb;border-color:#a32d2d"></div>Rejection</div>
+  <div class="legend-item">
+    <svg width="22" height="10"><line x1="0" y1="5" x2="22" y2="5" stroke="#888780" stroke-width="1.5" stroke-dasharray="4,3"/></svg>
+    Monitoring branch
+  </div>
+  <div class="legend-item">
+    <div class="sw" style="background:#e1f5ee;border-color:#0f6e56;border-style:dashed"></div>
+    Subprocess
+  </div>
+</div>
+
+<footer>NVPF Production Process</footer>
+
+</body>
+</html>
