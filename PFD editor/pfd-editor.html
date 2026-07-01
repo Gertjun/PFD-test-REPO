@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PFD editor - cathode powder process</title>
+<style>
+  :root{
+    --bg:#ffffff; --surface-1:#f5f5f3; --surface-2:#ffffff;
+    --text-primary:#1c1c1a; --text-secondary:#5f5e58; --text-muted:#8b8a83;
+    --border:#ddddd6; --border-strong:#b8b7ae;
+    --accent:#0c447c;
+    --teal-fill:#e1f5ee; --teal-stroke:#0f6e56; --teal-text:#085041;
+    --amber-fill:#faeeda; --amber-stroke:#854f0b; --amber-text:#633806;
+    --blue-fill:#e6f1fb; --blue-stroke:#185fa5; --blue-text:#0c447c;
+    --gray-fill:#eeede9; --gray-stroke:#888780; --gray-text:#3d3d3a;
+    --purple-fill:#eeedfe; --purple-stroke:#534ab7; --purple-text:#3c3489;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1a1a18; --surface-1:#26261f; --surface-2:#201f1c;
+      --text-primary:#f0efe9; --text-secondary:#b8b6ac; --text-muted:#8b8a83;
+      --border:#3a3934; --border-strong:#55534a;
+      --accent:#85b7eb;
+      --teal-fill:#085041; --teal-stroke:#5dcaa5; --teal-text:#9fe1cb;
+      --amber-fill:#633806; --amber-stroke:#fac775; --amber-text:#fac775;
+      --blue-fill:#0c447c; --blue-stroke:#85b7eb; --blue-text:#b5d4f4;
+      --gray-fill:#444441; --gray-stroke:#b4b2a9; --gray-text:#d3d1c7;
+      --purple-fill:#3c3489; --purple-stroke:#afa9ec; --purple-text:#cecbf6;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;background:var(--bg);color:var(--text-primary);font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:14px}
+  h1{font-size:17px;font-weight:600;margin:0 0 4px}
+  .subtitle{color:var(--text-secondary);font-size:13px;margin:0 0 16px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  button{font-family:inherit;font-size:13px;padding:6px 12px;background:var(--surface-2);color:var(--text-primary);border:1px solid var(--border-strong);border-radius:6px;cursor:pointer}
+  button:hover{background:var(--surface-1)}
+  button.primary{border-color:var(--accent);color:var(--accent)}
+  #addForm{display:none;background:var(--surface-1);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+  #addForm.open{display:block}
+  #addForm .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  input,select{font-family:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-2);color:var(--text-primary)}
+  #status{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
+  .canvas-wrap{overflow:auto;max-height:640px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface-2)}
+  svg .node{cursor:grab}
+  svg .node:active{cursor:grabbing}
+  svg .edge-hit{cursor:pointer}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin-top:10px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:10px;height:10px;border-radius:2px;display:inline-block;border:1px solid var(--border-strong)}
+  #fileInput{display:none}
+</style>
+</head>
+<body>
+
+<h1>PFD editor - cathode powder process</h1>
+<p class="subtitle">Drag steps to reposition, connect them with arrows, and add new ones. Your work saves automatically in this browser.</p>
+
+<div class="toolbar">
+  <button id="btnAdd">+ Add step</button>
+  <button id="btnConnect">Connect steps</button>
+  <button id="btnDelete">Delete selected</button>
+  <button id="btnSave" class="primary">Save layout</button>
+  <button id="btnLoad">Load layout</button>
+  <button id="btnReset">Reset to default</button>
+  <input type="file" id="fileInput" accept="application/json">
+</div>
+
+<div id="addForm">
+  <div class="row">
+    <input id="newLabel" placeholder="Step name" style="flex:1;min-width:160px">
+    <input id="newTag" placeholder="Tag (optional)" style="width:110px">
+    <select id="newCat">
+      <option value="teal">Loading / mixing</option>
+      <option value="amber">Thermal</option>
+      <option value="blue">Milling / wet processing</option>
+      <option value="gray">Quality control</option>
+      <option value="purple">Other</option>
+    </select>
+    <button id="btnAddConfirm">Add</button>
+  </div>
+</div>
+
+<div id="status">Drag any step to reposition it. Click a step or arrow to select it.</div>
+
+<div class="canvas-wrap">
+<svg id="canvas" width="1400" height="1900" style="display:block"></svg>
+</div>
+
+<div class="legend">
+  <span><i class="sw" style="background:var(--teal-fill);border-color:var(--teal-stroke)"></i>Loading / mixing</span>
+  <span><i class="sw" style="background:var(--amber-fill);border-color:var(--amber-stroke)"></i>Thermal</span>
+  <span><i class="sw" style="background:var(--blue-fill);border-color:var(--blue-stroke)"></i>Milling / wet processing</span>
+  <span><i class="sw" style="background:var(--gray-fill);border-color:var(--gray-stroke)"></i>Quality control</span>
+  <span><i class="sw" style="background:var(--purple-fill);border-color:var(--purple-stroke)"></i>Other</span>
+</div>
+
+<script>
+const CANVAS_W = 1400;
+const STORAGE_KEY = 'pfd_editor_state_v1';
+const CAT_COLORS = {
+  teal:{fill:'var(--teal-fill)',stroke:'var(--teal-stroke)',text:'var(--teal-text)'},
+  amber:{fill:'var(--amber-fill)',stroke:'var(--amber-stroke)',text:'var(--amber-text)'},
+  blue:{fill:'var(--blue-fill)',stroke:'var(--blue-stroke)',text:'var(--blue-text)'},
+  gray:{fill:'var(--gray-fill)',stroke:'var(--gray-stroke)',text:'var(--gray-text)'},
+  purple:{fill:'var(--purple-fill)',stroke:'var(--purple-stroke)',text:'var(--purple-text)'}
+};
+
+function defaultState(){
+  return {
+    nodes: [
+      {id:1,x:500,y:30,w:260,h:50,tag:'R-101',label:'Synthesis',cat:'teal'},
+      {id:2,x:500,y:120,w:260,h:50,tag:'V-101',label:'Sagger loading',cat:'teal'},
+      {id:3,x:500,y:210,w:260,h:50,tag:'F-101',label:'Calcination',cat:'amber'},
+      {id:4,x:500,y:300,w:260,h:50,tag:'V-102',label:'Sagger unloading',cat:'teal'},
+      {id:5,x:500,y:390,w:260,h:50,tag:'ML-101',label:'Milling',cat:'blue'},
+      {id:6,x:500,y:480,w:260,h:50,tag:'QC-101',label:'QC: inspection 1',cat:'gray'},
+      {id:7,x:500,y:570,w:260,h:50,tag:'W-101',label:'Weigh in IM1',cat:'teal'},
+      {id:8,x:500,y:660,w:260,h:50,tag:'MX-101',label:'High intensity mixing',cat:'teal'},
+      {id:9,x:500,y:750,w:260,h:50,tag:'QC-102',label:'QC: inspection 2',cat:'gray'},
+      {id:10,x:500,y:840,w:260,h:50,tag:'V-103',label:'Sagger loading (auto)',cat:'teal'},
+      {id:11,x:500,y:930,w:260,h:50,tag:'F-102',label:'Calcination',cat:'amber'},
+      {id:12,x:500,y:1020,w:260,h:50,tag:'CR-101',label:'Product crushing',cat:'teal'},
+      {id:13,x:500,y:1110,w:260,h:50,tag:'QC-103',label:'QC: inspection 3',cat:'gray'},
+      {id:14,x:500,y:1200,w:260,h:50,tag:'D-101',label:'Dispersing',cat:'blue'},
+      {id:15,x:500,y:1290,w:260,h:50,tag:'ML-102',label:'Wet milling',cat:'blue'},
+      {id:16,x:500,y:1380,w:260,h:50,tag:'WA-101',label:'Washing',cat:'blue'},
+      {id:17,x:500,y:1470,w:260,h:50,tag:'DR-101',label:'Drying',cat:'amber'},
+      {id:18,x:500,y:1560,w:260,h:50,tag:'DA-101',label:'Deagglomeration',cat:'teal'},
+      {id:19,x:500,y:1650,w:260,h:50,tag:'SP-101',label:'Sieving and packing',cat:'teal'},
+      {id:20,x:500,y:1740,w:260,h:50,tag:'QC-104',label:'QC: final inspection',cat:'gray'},
+      {id:101,x:900,y:545,w:170,h:46,tag:'QC-105',label:'LOD measurement',cat:'teal'},
+      {id:102,x:900,y:609,w:170,h:46,tag:'W-102',label:'Weigh in additives',cat:'teal'},
+      {id:103,x:900,y:673,w:170,h:46,tag:'MX-102',label:'Premix additives',cat:'teal'},
+      {id:104,x:900,y:737,w:170,h:46,tag:'DR-102',label:'Dry premix',cat:'amber'},
+      {id:105,x:900,y:801,w:170,h:46,tag:'W-103',label:'Weigh in premix',cat:'teal'}
+    ],
+    edges: [
+      {id:'S-101',from:1,to:2},{id:'S-102',from:2,to:3},{id:'S-103',from:3,to:4},{id:'S-104',from:4,to:5},
+      {id:'S-105',from:5,to:6},{id:'S-106',from:6,to:7},{id:'S-107',from:7,to:8},{id:'S-108',from:8,to:9},
+      {id:'S-109',from:9,to:10},{id:'S-110',from:10,to:11},{id:'S-111',from:11,to:12},{id:'S-112',from:12,to:13},
+      {id:'S-113',from:13,to:14},{id:'S-114',from:14,to:15},{id:'S-115',from:15,to:16},{id:'S-116',from:16,to:17},
+      {id:'S-117',from:17,to:18},{id:'S-118',from:18,to:19},{id:'S-119',from:19,to:20},
+      {id:'S-201',from:101,to:102},{id:'S-202',from:102,to:103},{id:'S-203',from:103,to:104},{id:'S-204',from:104,to:105},
+      {id:'S-205',from:105,to:8}
+    ],
+    nextNodeId: 200,
+    nextEdgeId: 1
+  };
+}
+
+let state = loadFromStorage() || defaultState();
+state.mode = 'idle';
+state.connectSource = null;
+state.selected = null;
+state.dragging = null;
+
+function loadFromStorage(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+function saveToStorage(){
+  try{
+    const data = {nodes: state.nodes, edges: state.edges, nextNodeId: state.nextNodeId, nextEdgeId: state.nextEdgeId};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e){}
+}
+
+const svg = document.getElementById('canvas');
+const statusEl = document.getElementById('status');
+
+function nodeById(id){ return state.nodes.find(n=>n.id===id); }
+
+function clip(cx,cy,w,h,dx,dy){
+  const hw=w/2, hh=h/2;
+  if(dx===0 && dy===0) return [cx,cy];
+  const sx = dx!==0 ? hw/Math.abs(dx) : Infinity;
+  const sy = dy!==0 ? hh/Math.abs(dy) : Infinity;
+  const s = Math.min(sx,sy);
+  return [cx+dx*s, cy+dy*s];
+}
+
+function render(){
+  let maxY = 60;
+  state.nodes.forEach(n=>{ maxY = Math.max(maxY, n.y+n.h); });
+  svg.setAttribute('height', maxY+60);
+  svg.setAttribute('viewBox', '0 0 '+CANVAS_W+' '+(maxY+60));
+
+  let html = '<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
+
+  state.edges.forEach(e=>{
+    const s = nodeById(e.from), t = nodeById(e.to);
+    if(!s||!t) return;
+    const scx=s.x+s.w/2, scy=s.y+s.h/2, tcx=t.x+t.w/2, tcy=t.y+t.h/2;
+    const dx=tcx-scx, dy=tcy-scy;
+    const p1 = clip(scx,scy,s.w,s.h,dx,dy);
+    const p2 = clip(tcx,tcy,t.w,t.h,-dx,-dy);
+    const isSel = state.selected && state.selected.type==='edge' && state.selected.id===e.id;
+    html += '<line class="edge-hit" data-edge="'+e.id+'" x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="'+(isSel?'var(--accent)':'var(--text-muted)')+'" stroke-width="'+(isSel?2:1.2)+'" marker-end="url(#arrow)"/>';
+  });
+
+  state.nodes.forEach(n=>{
+    const isSel = state.selected && state.selected.type==='node' && state.selected.id===n.id;
+    const isConnectSrc = state.connectSource===n.id;
+    const c = CAT_COLORS[n.cat] || CAT_COLORS.gray;
+    if(isSel || isConnectSrc){
+      html += '<rect x="'+(n.x-4)+'" y="'+(n.y-4)+'" width="'+(n.w+8)+'" height="'+(n.h+8)+'" rx="10" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,3"/>';
+    }
+    html += '<g class="node" data-node="'+n.id+'"><rect x="'+n.x+'" y="'+n.y+'" width="'+n.w+'" height="'+n.h+'" rx="8" fill="'+c.fill+'" stroke="'+c.stroke+'" stroke-width="1"/>' +
+      '<text x="'+(n.x+n.w/2)+'" y="'+(n.y+16)+'" text-anchor="middle" dominant-baseline="central" font-size="10" fill="'+c.text+'" opacity="0.8">'+(n.tag||'')+'</text>' +
+      '<text x="'+(n.x+n.w/2)+'" y="'+(n.y+n.h-14)+'" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="'+c.text+'">'+escapeXml(n.label)+'</text></g>';
+  });
+
+  svg.innerHTML = html;
+
+  svg.querySelectorAll('[data-node]').forEach(el=>{
+    el.addEventListener('mousedown', onNodeMouseDown);
+  });
+  svg.querySelectorAll('[data-edge]').forEach(el=>{
+    el.addEventListener('mousedown', onEdgeClick);
+  });
+}
+
+function escapeXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function svgPoint(evt){
+  const rect = svg.getBoundingClientRect();
+  const scaleX = svg.viewBox.baseVal.width / rect.width;
+  const scaleY = svg.viewBox.baseVal.height / rect.height;
+  return {x:(evt.clientX-rect.left)*scaleX, y:(evt.clientY-rect.top)*scaleY};
+}
+
+function onNodeMouseDown(evt){
+  const id = Number(evt.currentTarget.getAttribute('data-node'));
+  if(state.mode==='connect'){
+    if(state.connectSource===null){
+      state.connectSource = id;
+      statusEl.textContent = 'Now click the step you want to connect to.';
+    } else if(state.connectSource!==id){
+      const eid = 'S-custom-'+state.nextEdgeId++;
+      state.edges.push({id:eid, from:state.connectSource, to:id});
+      state.connectSource = null;
+      statusEl.textContent = 'Connected. Click another step to start a new connection, or press "Connect steps" again to stop.';
+      saveToStorage();
+    }
+    render();
+    return;
+  }
+  state.selected = {type:'node', id:id};
+  const p = svgPoint(evt);
+  const n = nodeById(id);
+  state.dragging = {id:id, offX:p.x-n.x, offY:p.y-n.y};
+  render();
+  evt.preventDefault();
+}
+
+function onEdgeClick(evt){
+  if(state.mode==='connect') return;
+  const id = evt.currentTarget.getAttribute('data-edge');
+  state.selected = {type:'edge', id:id};
+  render();
+}
+
+document.addEventListener('mousemove', evt=>{
+  if(!state.dragging) return;
+  const p = svgPoint(evt);
+  const n = nodeById(state.dragging.id);
+  n.x = Math.max(4, p.x - state.dragging.offX);
+  n.y = Math.max(4, p.y - state.dragging.offY);
+  render();
+});
+document.addEventListener('mouseup', ()=>{
+  if(state.dragging){ state.dragging=null; saveToStorage(); }
+});
+
+svg.addEventListener('mousedown', evt=>{
+  if(evt.target===svg){
+    state.selected = null;
+    render();
+  }
+});
+
+document.getElementById('btnConnect').addEventListener('click', ()=>{
+  if(state.mode==='connect'){
+    state.mode='idle'; state.connectSource=null;
+    statusEl.textContent='Drag any step to reposition it. Click a step or arrow to select it.';
+    document.getElementById('btnConnect').textContent='Connect steps';
+  } else {
+    state.mode='connect'; state.selected=null;
+    statusEl.textContent='Click a step to start a connection.';
+    document.getElementById('btnConnect').textContent='Done connecting';
+  }
+  render();
+});
+
+document.getElementById('btnDelete').addEventListener('click', ()=>{
+  if(!state.selected) return;
+  if(state.selected.type==='node'){
+    const id = state.selected.id;
+    state.nodes = state.nodes.filter(n=>n.id!==id);
+    state.edges = state.edges.filter(e=>e.from!==id && e.to!==id);
+  } else {
+    state.edges = state.edges.filter(e=>e.id!==state.selected.id);
+  }
+  state.selected = null;
+  render();
+  saveToStorage();
+});
+
+document.getElementById('btnAdd').addEventListener('click', ()=>{
+  document.getElementById('addForm').classList.toggle('open');
+});
+
+document.getElementById('btnAddConfirm').addEventListener('click', ()=>{
+  const label = document.getElementById('newLabel').value.trim();
+  if(!label) return;
+  const tag = document.getElementById('newTag').value.trim();
+  const cat = document.getElementById('newCat').value;
+  const id = state.nextNodeId++;
+  state.nodes.push({id:id, x:40, y:40, w:220, h:50, tag:tag, label:label, cat:cat});
+  document.getElementById('newLabel').value=''; document.getElementById('newTag').value='';
+  document.getElementById('addForm').classList.remove('open');
+  render();
+  saveToStorage();
+});
+
+document.getElementById('btnSave').addEventListener('click', ()=>{
+  const data = {nodes: state.nodes, edges: state.edges, nextNodeId: state.nextNodeId, nextEdgeId: state.nextEdgeId};
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pfd-layout.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('btnLoad').addEventListener('click', ()=>{
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change', evt=>{
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data.nodes || !data.edges) throw new Error('missing fields');
+      state.nodes = data.nodes;
+      state.edges = data.edges;
+      state.nextNodeId = data.nextNodeId || 200;
+      state.nextEdgeId = data.nextEdgeId || 1;
+      state.selected = null;
+      state.connectSource = null;
+      state.mode = 'idle';
+      document.getElementById('btnConnect').textContent = 'Connect steps';
+      render();
+      saveToStorage();
+      statusEl.textContent = 'Layout loaded from file.';
+    } catch(e){
+      statusEl.textContent = 'Could not read that file -- make sure it is a layout JSON saved from this editor.';
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+});
+
+document.getElementById('btnReset').addEventListener('click', ()=>{
+  if(!confirm('Reset to the default 25-step layout? This replaces your current diagram.')) return;
+  const d = defaultState();
+  state.nodes = d.nodes; state.edges = d.edges; state.nextNodeId = d.nextNodeId; state.nextEdgeId = d.nextEdgeId;
+  state.selected = null; state.connectSource = null; state.mode = 'idle';
+  document.getElementById('btnConnect').textContent = 'Connect steps';
+  render();
+  saveToStorage();
+});
+
+render();
+</script>
+</body>
+</html>
