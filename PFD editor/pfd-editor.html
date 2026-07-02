@@ -34,9 +34,9 @@
   input,select{font-family:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface-2);color:var(--text-primary)}
   #status{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
   .canvas-wrap{overflow:auto;max-height:640px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface-2)}
-  svg .node{cursor:grab}
+  svg .node{cursor:grab;touch-action:none}
   svg .node:active{cursor:grabbing}
-  svg .edge-hit{cursor:pointer}
+  svg .edge-hit{cursor:pointer;touch-action:none}
   #fileInput{display:none}
   .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin-top:10px}
   .legend span{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
@@ -223,11 +223,12 @@ function render(){
   svg.innerHTML = html;
 
   svg.querySelectorAll('[data-node]').forEach(el=>{
-    el.addEventListener('mousedown', onNodeMouseDown);
+    el.addEventListener('pointerdown', onNodeMouseDown);
     el.addEventListener('dblclick', onNodeDblClick);
+    el.addEventListener('contextmenu', onNodeContextMenu);
   });
   svg.querySelectorAll('[data-edge]').forEach(el=>{
-    el.addEventListener('mousedown', onEdgeClick);
+    el.addEventListener('pointerdown', onEdgeClick);
   });
 
   document.getElementById('btnDelete').disabled = state.selectedNodes.size===0 && !state.selectedEdge;
@@ -301,8 +302,23 @@ function rectsIntersect(ax,ay,aw,ah,bx,by,bw,bh){
   return ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by;
 }
 
+let lastTap = {id:null, time:0};
+
 function onNodeMouseDown(evt){
   const id = Number(evt.currentTarget.getAttribute('data-node'));
+  const now = Date.now();
+  if(lastTap.id===id && (now-lastTap.time)<400){
+    lastTap = {id:null, time:0};
+    if(state.mode==='connect'){
+      state.mode='idle'; state.connectSource=null;
+      statusEl.textContent='Drag any step to reposition it. Click a step or arrow to select it.';
+      document.getElementById('btnConnect').textContent='Connect steps';
+    }
+    openEditForm(id);
+    evt.preventDefault();
+    return;
+  }
+  lastTap = {id:id, time:now};
   if(state.mode==='connect'){
     if(state.connectSource===null){
       state.connectSource = id;
@@ -342,6 +358,18 @@ function onNodeDblClick(evt){
   evt.stopPropagation();
 }
 
+function onNodeContextMenu(evt){
+  evt.preventDefault();
+  const id = Number(evt.currentTarget.getAttribute('data-node'));
+  if(state.mode==='connect'){
+    state.mode='idle'; state.connectSource=null;
+    statusEl.textContent='Drag any step to reposition it. Click a step or arrow to select it.';
+    document.getElementById('btnConnect').textContent='Connect steps';
+  }
+  openEditForm(id);
+  evt.stopPropagation();
+}
+
 function onEdgeClick(evt){
   if(state.mode==='connect') return;
   const id = evt.currentTarget.getAttribute('data-edge');
@@ -351,7 +379,7 @@ function onEdgeClick(evt){
   evt.stopPropagation();
 }
 
-svg.addEventListener('mousedown', evt=>{
+svg.addEventListener('pointerdown', evt=>{
   if(evt.target!==svg) return;
   if(state.mode==='connect') return;
   if(!evt.shiftKey){ state.selectedNodes = new Set(); state.selectedEdge = null; }
@@ -360,7 +388,7 @@ svg.addEventListener('mousedown', evt=>{
   render();
 });
 
-document.addEventListener('mousemove', evt=>{
+document.addEventListener('pointermove', evt=>{
   if(state.dragging){
     const p = svgPoint(evt);
     const dx = p.x - state.dragging.startMouse.x;
@@ -381,7 +409,7 @@ document.addEventListener('mousemove', evt=>{
   }
 });
 
-document.addEventListener('mouseup', ()=>{
+function endGesture(){
   if(state.dragging){ state.dragging=null; saveToStorage(); }
   if(state.rubberBand){
     const r = state.rubberBand;
@@ -395,7 +423,9 @@ document.addEventListener('mouseup', ()=>{
     state.rubberBand = null;
     render();
   }
-});
+}
+document.addEventListener('pointerup', endGesture);
+document.addEventListener('pointercancel', endGesture);
 
 document.getElementById('btnConnect').addEventListener('click', ()=>{
   if(state.mode==='connect'){
